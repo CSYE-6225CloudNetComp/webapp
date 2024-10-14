@@ -18,49 +18,49 @@ const allowedHeaders = [
 ];
 
 // Create a new user
-export const createUser = async (req, res) => {
-  try {
-    // Check for unexpected headers
-    const hasUnexpectedHeaders = Object.keys(req.headers).some(
-      (header) => !allowedHeaders.includes(header.toLowerCase())
-    );
+// export const createUser = async (req, res) => {
+//   try {
+//     // Check for unexpected headers
+//     const hasUnexpectedHeaders = Object.keys(req.headers).some(
+//       (header) => !allowedHeaders.includes(header.toLowerCase())
+//     );
 
-    if (hasUnexpectedHeaders) {
-      return res.status(400).json({ message: `Unexpected headers in the request.` });
-    }
+//     if (hasUnexpectedHeaders) {
+//       return res.status(400).json({ message: `Unexpected headers in the request.` });
+//     }
 
-    const { first_name, last_name, email, password } = req.body;
+//     const { first_name, last_name, email, password } = req.body;
 
-    // Check for missing fields
-    if (!first_name || !last_name || !email || !password) {
-      return res.status(400).json({ error: 'All fields are required.' });
-    }
+//     // Check for missing fields
+//     if (!first_name || !last_name || !email || !password) {
+//       return res.status(400).json({ error: 'All fields are required.' });
+//     }
 
-    // Check if the email already exists
-    const existingUser = await getUserByEmail(email);
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email already in use.' });
-    }
+//     // Check if the email already exists
+//     const existingUser = await getUserByEmail(email);
+//     if (existingUser) {
+//       return res.status(400).json({ error: 'Email already in use.' });
+//     }
 
-    // Create the user using the service
-    const newUser = await createUserService(req.body);
+//     // Create the user using the service
+//     const newUser = await createUserService(req.body);
 
-    // Construct the response
-    const response = {
-      id: newUser.id,
-      first_name: newUser.first_name,
-      last_name: newUser.last_name,
-      email: newUser.email,
-      account_created: newUser.account_created,
-      account_updated: newUser.account_updated,
-    };
+//     // Construct the response
+//     const response = {
+//       id: newUser.id,
+//       first_name: newUser.first_name,
+//       last_name: newUser.last_name,
+//       email: newUser.email,
+//       account_created: newUser.account_created,
+//       account_updated: newUser.account_updated,
+//     };
 
-    res.status(201).json(response);
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({ error: 'An error occurred while creating the user.' });
-  }
-};
+//     res.status(201).json(response);
+//   } catch (error) {
+//     console.error('Error creating user:', error);
+//     res.status(500).json({ error: 'An error occurred while creating the user.' });
+//   }
+// };
 
 // Get user information
 // export const getUserInfo = async (req, res) => {
