@@ -8,7 +8,7 @@ packer {
 }
 
 # Define variables for AWS and database configurations
-  variable "aws_profile" {
+variable "aws_profile" {
   type = string
 }
 
@@ -20,7 +20,6 @@ variable "aws_region" {
 variable "aws_instance_type" {
   description = "Instance type to use for building the AMI"
   type        = string
-  default = "t2.small"
 }
 
 variable "aws_source_ami" {
@@ -31,6 +30,7 @@ variable "aws_source_ami" {
 variable "aws_vpc_id" {
   description = "VPC ID where the build instance will run"
   type        = string
+
 }
 
 variable "aws_subnet_id" {
@@ -60,14 +60,25 @@ variable "DB_PORT" {
   type = string
 }
 
+variable "aws_dev_user" {
+  description = "AWS Account ID for the dev account where the AMI will be created"
+  type        = string
+}
+
+variable "aws_demo_user" {
+  description = "AWS Account ID for the demo account where the AMI should be shared."
+  type        = string
+}
+
 # Define the source for AWS Amazon AMI
 source "amazon-ebs" "ubuntu" {
   profile       = var.aws_profile
   region        = var.aws_region
-  ami_name      = "ubuntu-24.04-${formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())}"
+  ami_name      = "ubuntuAWS-${formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())}"
   instance_type = var.aws_instance_type
   vpc_id        = var.aws_vpc_id
   subnet_id     = var.aws_subnet_id
+  ami_users     = [var.aws_dev_user, var.aws_demo_user]
 
   # Use the latest Ubuntu 24.04 LTS AMI
   source_ami_filter {
@@ -108,9 +119,16 @@ build {
     destination = "/tmp/csye6225.service"
   }
 
+  provisioner "file" {
+    source      = "./.env"
+    destination = "/tmp/.env"
+  }
+
+
   # Move service file and reload systemd daemon
   provisioner "shell" {
     inline = [
+      "set -e",
       "sudo mv /tmp/csye6225.service /etc/systemd/system/csye6225.service",
       "sudo systemctl daemon-reload",
       "sudo systemctl enable csye6225.service"
@@ -126,17 +144,21 @@ build {
       "sudo apt-get install -y unzip",
       "curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -",
       "sudo apt-get install -y nodejs",
+      "sudo groupadd csye6225",
+      "sudo useradd -s /usr/sbin/nologin -g csye6225 -d /var/csye6225 -m csye6225",
       "sudo apt-get install -y postgresql postgresql-contrib",
       "sudo systemctl enable postgresql",
       "sudo systemctl start postgresql",
       "sudo mkdir -p /var/applications/webapp",
+      "echo test1",
       "sudo unzip /tmp/webapp.zip -d /var/applications/webapp",
       "sudo chown -R csye6225:csye6225 /var/applications/webapp",
-      "sudo npm install --prefix /var/applications/webapp"
+      "echo test2",
+      "sudo npm install --prefix /var/applications/webapp/"
     ]
   }
 
-  # Provision PostgreSQL configuration using environment variables
+  Provision PostgreSQL configuration using environment variables
   provisioner "shell" {
     inline = [
       "sudo -u postgres psql -tc \"SELECT 1 FROM pg_roles WHERE rolname='${var.DB_USER}';\" | grep -q 1 || sudo -u postgres psql -c \"CREATE USER ${var.DB_USER} WITH PASSWORD '${var.DB_PASSWORD}';\"",
@@ -144,24 +166,13 @@ build {
     ]
   }
 
-  # Transfer environment file from local machine to server
-  provisioner "file" {
-    source      = "./environment/development.env"
-    destination = "/tmp/development.env"
-  }
 
-  # Copy the environment file to the correct location
-  provisioner "shell" {
-    inline = [
-      "sudo mv /tmp/development.env /var/applications/webapp/.env"
-    ]
-  }
 
   # Move the environment file to the correct location
   provisioner "shell" {
     inline = [
       "sudo mv /tmp/.env /var/applications/webapp/.env",
-      "sudo chown csye6225:csye6225 /var/applications/webapp/.env"
+      "sudo chown csye6225:csye6225 /var/applications/webapp/"
     ]
   }
 

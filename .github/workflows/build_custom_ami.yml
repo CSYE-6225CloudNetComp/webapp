@@ -19,6 +19,10 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: "16"
+      
+    - name: Zip application code
+      run: |
+        zip -r webapp.zip .
 
     # Step 3: Install dependencies
     - name: Install dependencies
@@ -58,11 +62,11 @@ jobs:
 
     # Step 7: Check if environment file exists
     - name: Check if environment file exists
-      run: ls -l ./environment/development.env
+      run: ls -l ./.env
 
     # Step 8: Show environment file content
     - name: Show environment file content
-      run: cat ./environment/development.env
+      run: cat .env
 
     # Step 9: Run tests
     - name: Run tests
@@ -75,9 +79,7 @@ jobs:
         PORT: ${{ secrets.PORT }}
       run: npm test
 
-    - name: Zip application code
-      run: |
-        zip -r webapp.zip .
+
 
     #
     - name: Upload webapp artifact
@@ -120,6 +122,8 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_PORT: ${{ secrets.DB_PORT }}
+        DEMO_USER: ${{ secrets.DEMO_USER }}
+        DEV_USER: ${{secrets.DEV_USER}}
       run: |
         packer build -var "aws_vpc_id=${AWS_VPC_ID}" \
                      -var "aws_subnet_id=${AWS_SUBNET_ID}" \
@@ -132,4 +136,6 @@ jobs:
                      -var "DB_PASSWORD=${DB_PASSWORD}" \
                      -var "DB_NAME=${DB_NAME}" \
                      -var "DB_PORT=${DB_PORT}" \
+                     -var "aws_demo_user=${DEMO_USER}" \
+                     -var "aws_dev_user=${DEV_USER}" \
                      ./packer/aws.pkr.hcl
