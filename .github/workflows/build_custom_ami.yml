@@ -7,6 +7,7 @@ on:
 jobs:
   build_and_test:
     name: Zip and Upload Web Application & Create Custom AMI
+    if: github.event.pull_request.merged == true  # Run only if the PR was merged
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +20,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: "16"
-      
+ 
     - name: Zip application code
       run: |
         zip -r webapp.zip .
@@ -49,8 +50,7 @@ jobs:
     # Step 6: Set up the environment file
     - name: Setup Environment File
       run: |
-        mkdir -p ./environment
-        cat << EOF > ./environment/development.env
+        cat << EOF > .env
         DB_USER=${{ secrets.DB_USER }}
         DB_HOST=${{ secrets.DB_HOST }}
         DB_NAME=${{ secrets.DB_NAME }}
@@ -58,6 +58,7 @@ jobs:
         DB_PORT=${{ secrets.DB_PORT }}
         PORT=${{ secrets.PORT }}
         EOF
+        
       shell: bash
 
     # Step 7: Check if environment file exists
@@ -78,7 +79,6 @@ jobs:
         DB_PORT: ${{ secrets.DB_PORT }}
         PORT: ${{ secrets.PORT }}
       run: npm test
-
 
 
     #
@@ -124,6 +124,8 @@ jobs:
         DB_PORT: ${{ secrets.DB_PORT }}
         DEMO_USER: ${{ secrets.DEMO_USER }}
         DEV_USER: ${{secrets.DEV_USER}}
+
+
       run: |
         packer build -var "aws_vpc_id=${AWS_VPC_ID}" \
                      -var "aws_subnet_id=${AWS_SUBNET_ID}" \
