@@ -158,6 +158,7 @@ build {
     ]
   }
 
+
   Provision PostgreSQL configuration using environment variables
   provisioner "shell" {
     inline = [

@@ -23,24 +23,23 @@ jobs:
      # Step 2.5: Set up the environment file for enironment variables
     - name: Setup Environment File
       run: |
-        mkdir -p ./environment
-        cat << EOF > ./environment/development.env
-        DB_USER=${{ secrets.DB_USER }}
-        DB_HOST=${{ secrets.DB_HOST }}
-        DB_NAME=${{ secrets.DB_NAME }}
-        DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-        DB_PORT=${{ secrets.DB_PORT }}
-        PORT=${{ secrets.PORT }}
-        EOF
+       cat << EOF > .env
+       DB_USER=${{ secrets.DB_USER }}
+       DB_HOST=${{ secrets.DB_HOST }}
+       DB_NAME=${{ secrets.DB_NAME }}
+       DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+       DB_PORT=${{ secrets.DB_PORT }}
+       PORT=${{ secrets.PORT }}
+       EOF
       shell: bash
 
     # Step 7: Check if environment file exists
     - name: Check if environment file exists
-      run: ls -l ./environment/development.env
+      run: ls -l ./.env
 
     # Step 8: Show environment file content
     - name: Show environment file content
-      run: cat ./environment/development.env
+      run: cat .env
 
 
     # Step 3: Initialize Packer
@@ -59,7 +58,7 @@ jobs:
         zip -r webapp.zip ./
         pwd
 
-    # Step 6: Validate Packer template
+    # Step 6: Validate Packer template with dev and demo accounts
     - name: Validate Packer template
       env:
         AWS_VPC_ID: ${{ secrets.AWS_VPC_ID }}
@@ -73,6 +72,8 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_PORT: ${{ secrets.DB_PORT }}
+        DEMO_USER: ${{ secrets.DEMO_USER }}
+        DEV_USER: ${{secrets.DEV_USER}}
       run: |
         packer validate -var "aws_vpc_id=${AWS_VPC_ID}" \
                         -var "aws_subnet_id=${AWS_SUBNET_ID}" \
@@ -85,4 +86,6 @@ jobs:
                         -var "DB_PASSWORD=${DB_PASSWORD}" \
                         -var "DB_NAME=${DB_NAME}" \
                         -var "DB_PORT=${DB_PORT}" \
+                        -var "aws_demo_user=${DEMO_USER}" \
+                        -var "aws_dev_user=${DEV_USER}" \
                         ./packer/aws.pkr.hcl
