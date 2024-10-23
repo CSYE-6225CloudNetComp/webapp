@@ -1,14 +1,12 @@
 name: Build and Deploy Custom Image on PR Merge
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    branches: [ "a04v4" ]
 
 jobs:
   build_and_test:
     name: Zip and Upload Web Application & Create Custom AMI
-    if: github.event.pull_request.merged == true  # Run only if the PR was merged
     runs-on: ubuntu-latest
 
     steps:
