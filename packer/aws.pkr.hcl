@@ -8,7 +8,7 @@ packer {
 }
 
 # Define variables for AWS and database configurations
-variable "aws_profile" {
+  variable "aws_profile" {
   type = string
 }
 
