@@ -15,7 +15,7 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v3
 
-    # Step 2: Set up Node.js version
+    # Step 2: Set up Node.js versionj
     - name: Set up Node.js environment
       uses: actions/setup-node@v3
       with:
