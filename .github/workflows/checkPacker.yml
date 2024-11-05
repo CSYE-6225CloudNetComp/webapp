@@ -2,7 +2,7 @@ name: Packer CI
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [ "A07" ]
 
 jobs:
   packer_ci:
