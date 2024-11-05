@@ -8,15 +8,17 @@ import logger from '../utils/logger.js';
 const allowedHeaders = [
   'content-type', 'accept', 'user-agent', 'host', 'content-length',
   'accept-encoding', 'connection', 'authorization', 'postman-token',
-  'x-forwarded-for', 'x-forwarded-proto', 'x-amzn-trace-id'
+  'x-forwarded-for', 'x-forwarded-proto', 'x-amzn-trace-id', 'x-forwarded-Port'
 ];
 
 
 export const createUser = async (req, res) => {
+  logger.info('Incoming headers:', req.headers);
   try {
     const hasUnexpectedHeaders = Object.keys(req.headers).some(
-      (header) => !allowedHeaders.includes(header.toLowerCase())
+      (header) => !allowedHeaders.includes(header.toLowerCase()) && !header.toLowerCase().startsWith('x-')
     );
+    
 
     if (hasUnexpectedHeaders) {
       logger.warn('Unexpected headers detected in request');
