@@ -51,6 +51,7 @@ app.all('/verify', verifyUser);
 
 
 // Health check routes
+app.get('/cicd', healthCheck);
 app.get('/healthz', healthCheck);
 app.head('/healthz', methodNotAllowed);
 app.all('/healthz', methodNotAllowed);
